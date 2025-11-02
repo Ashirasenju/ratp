@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-int install(char *argv[]) {
+int install(char *argv[], int argc) {
   const std::string base_url =
       "http://127.0.0.1:66/ratp/download_latest?package_name=";
 
@@ -14,7 +14,7 @@ int install(char *argv[]) {
     return 1;
   }
 
-  for (size_t i = 1; i < sizeof(argc); ++i) {
+  for (size_t i = 2; i < argc; ++i) {
     std::string package_name = argv[i];
     std::string url = base_url + package_name;
     std::string filename = package_name + ".tar.xz";
@@ -40,8 +40,5 @@ int install(char *argv[]) {
   }
 
   curl_easy_cleanup(curl);
-  std::ofstream registry("../.cache/package_list");
-  registry << "package_name";
-  registry.close();
   return 0;
 }

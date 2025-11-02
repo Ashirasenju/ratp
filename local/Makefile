@@ -2,7 +2,7 @@
 CXX := g++
 CXXFLAGS := -Wall -Wextra -std=c++17 -O2
 TARGET := main
-
+LDLIBS = -lcurl
 # === Répertoires ===
 SRC_DIR := .
 OBJ_DIR := build
@@ -31,7 +31,7 @@ all: $(TARGET)
 # Lien final
 $(TARGET): $(OBJ)
 	@echo "🔗 Édition des liens..."
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -lcurl
 	@echo "✅ Compilation terminée : ./$(TARGET)"
 
 # Compilation des fichiers objets

@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
       std::cout << help() << std::endl;
     }
     if (std::strcmp(argv[1], "install") == 0) {
-      int status = install(argv);
+      int status = install(argv, argc);
       return status;
     }
     if (std::strcmp(argv[1], "purge") == 0) {
