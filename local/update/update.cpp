@@ -1,3 +1,4 @@
 #include "update.h"
+#include <cstdio>
 
-int update() {return 0;}
+int update() { return 0; }
