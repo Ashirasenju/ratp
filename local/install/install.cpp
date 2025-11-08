@@ -1,12 +1,10 @@
 #include "install.h"
 #include "curl/curl.h"
-#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <iterator>
 #include <ostream>
 #include <string>
 #include <sys/stat.h>
