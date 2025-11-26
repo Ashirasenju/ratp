@@ -54,7 +54,6 @@ int isLatest(std::string package_name, std::string version) {
     }
   }
   int return_value = extractHasToUpdate(response);
-  std::cout << return_value << std::endl;
   if (return_value == 0 || return_value == 1) {
     return return_value;
   } else {
@@ -62,7 +61,61 @@ int isLatest(std::string package_name, std::string version) {
   }
 }
 
-void download(std::string package_name) {}
+void download(std::string package_name) {
+  const std::string base_url =
+      "http://127.0.0.1:66/ratp/download_latest?package_name=";
+  std::filesystem::path cur_dir = std::filesystem::current_path();
+
+  CURL *curl = curl_easy_init();
+  if (!curl) {
+    std::cerr << "Cannot init liburl.\n";
+    return;
+  }
+
+
+
+    std::string url = base_url + package_name;
+    std::string filename = package_name + ".tar.xz";
+
+    FILE *fp = fopen(filename.c_str(), "wb");
+    if (!fp) {
+      std::cerr << "  ⚠️  Cannot open a new buffer for the downloaded file. '"
+                << filename << "\n";
+      return;
+
+    }
+
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+
+    CURLcode res = curl_easy_perform(curl);
+    fclose(fp);
+
+    if (res != CURLE_OK){ std::cerr << "  ❌ Curl Error '" << package_name << "': " << curl_easy_strerror(res) << '\n'; return; }
+    else
+      std::cout << "✅ Download finished → " << filename << "\n";
+    std::filesystem::path downloaded_content = cur_dir / filename;
+    std::filesystem::path destination_cache = cur_dir / ".to_upgrade" / filename;
+    std::filesystem::path temp_dir = cur_dir / ".to_upgrade";
+
+    auto packet_size = std::filesystem::file_size(downloaded_content);
+    if (packet_size == 0) {
+      std::cout << "The package doesn't exist." << std::endl;
+      return;
+
+    }
+    try {
+      std::filesystem::rename(downloaded_content, destination_cache);
+      std::cout << "✅  " << filename << " was successfully added to upgrade dir."
+                << "\n";
+
+    } catch (const std::filesystem::filesystem_error &e) {
+      std::cout << "❌ " << ""
+                << "Couldn't be moved to .cache directory. Please check if "
+                   "the .to_upgrade directory exists."
+                << std::endl;
+    }
+}
 int update() {
   std::filesystem::path cur_dir = std::filesystem::current_path();
   std::ifstream registry("registry");
@@ -73,12 +126,12 @@ int update() {
     package_name = line.substr(0, line.find("|"));
     version = line.substr(line.find("|") + 2, 5);
     int status_update = isLatest(package_name, version);
-    std::cout << status_update;
     if (status_update == -4) {
       std::cout << package_name
                 << " couldn't be found in the distant server ..." << std::endl;
     } else if (status_update) {
-      std::cout << package_name << " has to update" << std::endl;
+      std::cout << package_name << " has to update, starting download of the latest version " << std::endl;
+      download(package_name);
     }
   }
   return 0;

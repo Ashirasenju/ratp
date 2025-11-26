@@ -16,7 +16,9 @@ def root():
 
 @app.route("/ratp/isLatest")
 def update():
-    connection = sqlite3.connect("/home/ashira/Documents/DevPerso/C/ratp/server/db/db")
+
+    connection = sqlite3.connect(
+        "/home/ashira/Documents/DevPerso/C/ratp/server/db/db")
     cursor = connection.cursor()
 
     package_name = request.args.get("package_name")
@@ -24,13 +26,12 @@ def update():
     query = "SELECT latest_update FROM packages WHERE package_name=?"
     latest_realease = cursor.execute(
         query, (package_name,)).fetchall()
-    print(latest_realease)
     if latest_realease == []:
-        return jsonify({"has_to_update" : 4})
-    print(version)
+        return jsonify({"has_to_update": 4})
     version = version[0] + "." + version[2] + version[4]
     latest_realease = latest_realease[0][0]
-    latest_realease = latest_realease[0] + "." + latest_realease[2] + latest_realease[4]
+    latest_realease = latest_realease[0] + "." + \
+        latest_realease[2] + latest_realease[4]
     latest_realease = float(latest_realease)
     if latest_realease > float(version):
         return jsonify({"has_to_update": 1})
