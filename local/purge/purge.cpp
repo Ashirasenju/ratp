@@ -29,7 +29,7 @@ int purge(char *argv[], int argc) {
       }
     }
     if (!found)
-      std::cout << package_name << " isnt installed." << std::endl;
+      std::cout << package_name << " isn't installed." << std::endl;
   }
   std::filesystem::rename("registry.tmp", "registry");
   registry.close();
