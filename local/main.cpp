@@ -1,8 +1,8 @@
-#include "help/help.h"
-#include "install/install.h"
-#include "purge/purge.h"
-#include "update/update.h"
-#include "upgrade/upgrade.h"
+#include "commands/help.h"
+#include "commands/install.h"
+#include "commands/purge.h"
+#include "commands/update.h"
+#include "commands/upgrade.h"
 #include <cstring>
 #include <iostream>
 int main(int argc, char *argv[]) {
