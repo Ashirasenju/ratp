@@ -2,7 +2,6 @@
 #include "commands/install.h"
 #include "commands/purge.h"
 #include "commands/update.h"
-#include "commands/upgrade.h"
 #include <cstring>
 #include <iostream>
 int main(int argc, char *argv[]) {
@@ -20,10 +19,6 @@ int main(int argc, char *argv[]) {
     }
     if (std::strcmp(argv[1], "purge") == 0) {
       int status = purge(argv,argc);
-      return status;
-    }
-    if (std::strcmp(argv[1], "upgrade") == 0) {
-      int status = upgrade();
       return status;
     }
     if (std::strcmp(argv[1], "update") == 0) {

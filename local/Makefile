@@ -18,8 +18,7 @@ SRC := $(SRC_DIR)/main.cpp \
        commands/help.cpp \
        commands/install.cpp \
        commands/purge.cpp \
-       commands/update.cpp \
-       commands/upgrade.cpp
+       commands/update.cpp 
 
 # === Fichiers objets ===
 OBJ := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
