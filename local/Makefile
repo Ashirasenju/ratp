@@ -1,8 +1,8 @@
 # === Variables ===
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 -O2
+CXXFLAGS := -Wall -Wextra -std=c++17 -O2 -fsanitize=address
 TARGET := main
-LDLIBS = -lcurl
+LDLIBS = -lcurl 
 # === Répertoires ===
 SRC_DIR := .
 OBJ_DIR := build
@@ -14,11 +14,12 @@ UPGRADE_DIR := upgrade
 
 # === Fichiers sources ===
 SRC := $(SRC_DIR)/main.cpp \
-       $(HELP_DIR)/help.cpp \
-       $(INSTALL_DIR)/install.cpp \
-       $(PURGE_DIR)/purge.cpp \
-       $(UPDATE_DIR)/update.cpp \
-       $(UPGRADE_DIR)/upgrade.cpp
+	   commands/commons.cpp \
+       commands/help.cpp \
+       commands/install.cpp \
+       commands/purge.cpp \
+       commands/update.cpp \
+       commands/upgrade.cpp
 
 # === Fichiers objets ===
 OBJ := $(SRC:%.cpp=$(OBJ_DIR)/%.o)
@@ -42,11 +43,7 @@ $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 
 # Création des sous-dossiers dans build/
 $(OBJ_DIR):
-	@mkdir -p $(OBJ_DIR)/$(HELP_DIR) \
-	           $(OBJ_DIR)/$(INSTALL_DIR) \
-	           $(OBJ_DIR)/$(PURGE_DIR) \
-	           $(OBJ_DIR)/$(UPDATE_DIR) \
-	           $(OBJ_DIR)/$(UPGRADE_DIR)
+	@mkdir -p $(OBJ_DIR)/commands \
 
 # Nettoyage
 clean:

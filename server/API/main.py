@@ -14,6 +14,25 @@ def root():
     return "<p>Welcome </p>"
 
 
+@app.route("/ratp/packageExist")
+def packageExist():
+    connection = sqlite3.connect(
+        "/home/ashira/Documents/DevPerso/C/ratp/server/db/db")
+    cursor = connection.cursor()
+
+    package_name = request.args.get("package_name")
+    package_name = secure_filename(package_name)
+    query = "SELECT latest_update FROM packages WHERE package_name=?"
+    latest_realease = cursor.execute(
+        query, (package_name,)).fetchall()
+    if latest_realease == []:
+        return jsonify([0])
+    else:
+        return jsonify([1])
+
+
+
+
 @app.route("/ratp/isLatest")
 def update():
 
@@ -22,6 +41,8 @@ def update():
     cursor = connection.cursor()
 
     package_name = request.args.get("package_name")
+    package_name = secure_filename(package_name)
+
     version = request.args.get("version")
     query = "SELECT latest_update FROM packages WHERE package_name=?"
     latest_realease = cursor.execute(
@@ -57,8 +78,10 @@ def get_mirror_link():
 
     path_to_file = os.path.join(
         path_to_storage, package_name, version, file_name)
-
-    return send_file(path_to_file)
+    try:
+        return send_file(path_to_file)
+    except FileNotFoundError:
+        return "Package Not Found"
 
 
 @app.route("/ratp/download")
@@ -71,8 +94,10 @@ def download_specific_version():
 
     path_to_file = os.path.join(
         path_to_storage, package_name, version, file_name)
-
-    return send_file(path_to_file)
+    try:
+        return send_file(path_to_file)
+    except FileNotFoundError:
+        return "Package Not Found"
 
 
 if __name__ == "__main__":

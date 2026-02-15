@@ -1,122 +1,14 @@
 #include "update.h"
-#include "curl/curl.h"
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include "commons.h"
 
-size_t WriteCallback(void *contents, size_t size, size_t nmemb,
-                     std::string *out) {
-  out->append((char *)contents, size * nmemb);
-  return size * nmemb;
-}
-
-int extractHasToUpdate(const std::string &json) {
-  const std::string key = "has_to_update";
-
-  size_t pos = json.find(key);
-  if (pos == std::string::npos)
-    return -1;
-
-  pos = json.find(":", pos);
-  if (pos == std::string::npos)
-    return -1;
-
-  while (pos < json.size() && (json[pos] < '0' || json[pos] > '9'))
-    pos++;
-
-  if (pos >= json.size())
-    return -1;
-
-  return json[pos] - '0';
-}
-
-int isLatest(std::string package_name, std::string version) {
-  CURL *curl;
-  CURLcode res;
-  std::string response;
-  std::string url =
-      "http://127.0.0.1:66/ratp/isLatest?package_name=" + package_name +
-      "&version=" + version;
-  curl = curl_easy_init();
-  if (curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-
-    if (res != CURLE_OK) {
-      std::cerr << "Curl Error :" << curl_easy_strerror(res) << std::endl;
-      return 1;
-    }
-  }
-  int return_value = extractHasToUpdate(response);
-  if (return_value == 0 || return_value == 1) {
-    return return_value;
-  } else {
-    return -4;
-  }
-}
-
-void download(std::string package_name) {
-  const std::string base_url =
-      "http://127.0.0.1:66/ratp/download_latest?package_name=";
-  std::filesystem::path cur_dir = std::filesystem::current_path();
-
-  CURL *curl = curl_easy_init();
-  if (!curl) {
-    std::cerr << "Cannot init liburl.\n";
-    return;
-  }
-
-
-
-    std::string url = base_url + package_name;
-    std::string filename = package_name + ".tar.xz";
-
-    FILE *fp = fopen(filename.c_str(), "wb");
-    if (!fp) {
-      std::cerr << "  ⚠️  Cannot open a new buffer for the downloaded file. '"
-                << filename << "\n";
-      return;
-
-    }
-
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-
-    CURLcode res = curl_easy_perform(curl);
-    fclose(fp);
-
-    if (res != CURLE_OK){ std::cerr << "  ❌ Curl Error '" << package_name << "': " << curl_easy_strerror(res) << '\n'; return; }
-    else
-      std::cout << "✅ Download finished → " << filename << "\n";
-    std::filesystem::path downloaded_content = cur_dir / filename;
-    std::filesystem::path destination_cache = cur_dir / ".to_upgrade" / filename;
-    std::filesystem::path temp_dir = cur_dir / ".to_upgrade";
-
-    auto packet_size = std::filesystem::file_size(downloaded_content);
-    if (packet_size == 0) {
-      std::cout << "The package doesn't exist." << std::endl;
-      return;
-
-    }
-    try {
-      std::filesystem::rename(downloaded_content, destination_cache);
-      std::cout << "✅  " << filename << " was successfully added to upgrade dir."
-                << "\n";
-
-    } catch (const std::filesystem::filesystem_error &e) {
-      std::cout << "❌ " << ""
-                << "Couldn't be moved to .cache directory. Please check if "
-                   "the .to_upgrade directory exists."
-                << std::endl;
-    }
-}
 int update() {
+    const std::string base_url =
+      "http://127.0.0.1:66/ratp/download_latest?package_name=";
   std::filesystem::path cur_dir = std::filesystem::current_path();
   std::ifstream registry("registry");
   std::string line;
@@ -125,13 +17,21 @@ int update() {
   while (getline(registry, line)) {
     package_name = line.substr(0, line.find("|"));
     version = line.substr(line.find("|") + 2, 5);
+    std::string url = base_url + package_name;
     int status_update = isLatest(package_name, version);
+    if(status_update == -2){
+      return 0;
+    }
+    if(status_update == 0){
+      std::cout << "✅ " << package_name << " is at the newest version." << std::endl;
+    }
     if (status_update == -4) {
       std::cout << package_name
                 << " couldn't be found in the distant server ..." << std::endl;
     } else if (status_update) {
       std::cout << package_name << " has to update, starting download of the latest version " << std::endl;
-      download(package_name);
+      download(url,package_name);
+      install(package_name,1);
     }
   }
   return 0;

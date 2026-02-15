@@ -6,22 +6,34 @@
 #include <iostream>
 #include <ostream>
 #include <string>
-#include <commons.h>
+#include "commons.h"
 #include <sys/stat.h>
 int install(char *argv[], int argc) {
   const std::string base_url =
       "http://127.0.0.1:66/ratp/download_latest?package_name=";
+  const std::string check_url = "http://127.0.0.1:66/ratp/packageExist?package_name=";
   std::filesystem::path cur_dir = std::filesystem::current_path();
 
 
 
   for (size_t i = 2; i < argc; ++i) {
     std::string package_name = argv[i];
+    std::string check_url_full = check_url + package_name;
     std::string url = base_url + package_name;
     std::string filename = package_name + ".tar.xz";
     std::filesystem::path destination_cache = cur_dir / ".cache" / filename;
     std::filesystem::path temp_dir = cur_dir / ".temp";
-    download(base_url,package_name);
+    int exists = package_exist(check_url_full);
+    if(!exists){
+      std::cout << "❌ Package doesn't exist ! Please check the name of the package." << std::endl;
+      return 0;
+    } 
+
+
+
+    download(url,package_name);
+    
+    
     std::cout << "Decompressing " << filename << " ..." << std::endl;
     std::string command = "tar -xvf " + destination_cache.string() + " -C " +
                           temp_dir.string() + "/" + " > /dev/null 2>&1";
@@ -60,6 +72,7 @@ int install(char *argv[], int argc) {
     std::cout << "Adding " << package_name << " to the registry..."
               << std::endl;
     std::string version_str;
+    
     std::getline(version, version_str);
     std::ofstream registry("registry");
     std::string new_package = package_name + "|" + version_str + ";";
