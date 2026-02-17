@@ -1,17 +1,45 @@
 #include "commons.h"
 #include "curl/curl.h"
 #include <cstdio>
-#include <filesystem>
-#include <string>
-#include <sys/stat.h>
-
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
 
+int decompress_in_temp(const std::string &filename) {
+  pid_t pid = fork();
+
+  if (pid == 0) {
+    std::filesystem::path cur_dir = std::filesystem::current_path();
+    std::vector<char *> args;
+    args.push_back((char *)"tar");
+    args.push_back((char *)"-xvf");
+
+    args.push_back((char *)filename.c_str());
+    args.push_back((char *)"-C");
+    std::filesystem::path temp_dir = cur_dir / ".temp";
+    args.push_back((char *)temp_dir.c_str());
+    args.push_back(nullptr);
+
+    execvp("tar", args.data());
+
+    perror("execvp failed");
+    _exit(1);
+  } else if (pid > 0) {
+    int status;
+    waitpid(pid, &status, 0);
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+  } else {
+    perror("fork failed");
+    return false;
+  }
+}
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp) {
   std::string *output = static_cast<std::string *>(userp);
   output->append(static_cast<char *>(contents), size * nmemb);
@@ -161,10 +189,7 @@ int install(std::string package_name, int is_update) {
   std::filesystem::path temp_dir = cur_dir / ".temp";
 
   std::cout << "Decompressing " << filename << " ..." << std::endl;
-  std::string command = "tar -xvf " + destination_cache.string() + " -C " +
-                        temp_dir.string() + "/" + " > /dev/null 2>&1";
-  std::system(command.c_str());
-
+  decompress_in_temp(destination_cache.c_str());
   std::filesystem::path path_to_install = temp_dir / "install.sh";
   std::string path_to_install_ = path_to_install.string() + " > /dev/null 2>&1";
   if (std::filesystem::exists(path_to_install)) {
@@ -230,8 +255,8 @@ int install(std::string package_name, int is_update) {
       return 1;
     }
     while (std::getline(infile, line)) {
-      if (line.rfind(prefix, 0) !=
-          0) { // Vérifie que la ligne NE commence PAS par prefix
+      if (line.rfind(prefix, 0) != 0) {
+
         outfile << line << "\n";
       } else {
         outfile << package_name << "|" << version_str << ";" << "\n";
