@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <vector>
 
+// copy and paste without any shame from an old forum
 int decompress_in_temp(const std::string &filename) {
   pid_t pid = fork();
 
