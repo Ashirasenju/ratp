@@ -15,7 +15,9 @@
 // copy and paste without any shame from an old forum
 int decompress_in_temp(const std::string &filename) {
   pid_t pid = fork();
-
+  if ((!std::filesystem::exists(filename))) // || (filename.ends_with(".tar.gz")
+                                            // || filename.ends_with(".tgz")))
+    return -1;
   if (pid == 0) {
     std::filesystem::path cur_dir = std::filesystem::current_path();
     std::vector<char *> args;
@@ -190,7 +192,10 @@ int install(std::string package_name, int is_update) {
   std::filesystem::path temp_dir = cur_dir / ".temp";
 
   std::cout << "Decompressing " << filename << " ..." << std::endl;
-  decompress_in_temp(destination_cache.c_str());
+  int status = decompress_in_temp(destination_cache.c_str());
+  if (status == -1) {
+    std::cout << "wrong file format" << std::endl;
+  }
   std::filesystem::path path_to_install = temp_dir / "install.sh";
   std::string path_to_install_ = path_to_install.string() + " > /dev/null 2>&1";
   if (std::filesystem::exists(path_to_install)) {
