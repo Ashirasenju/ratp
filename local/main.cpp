@@ -27,8 +27,15 @@ int main(int argc, char *argv[]) {
       return status;
     }
     if (std::strcmp(argv[1], "check_arch") == 0) {
+      int status = -1;
+      if (argc >= 3) {
+        std::string path = argv[2];
+        int status = check_arch(path);
 
-      int status = check_arch();
+      } else {
+        std::cout << "❌Missing a argument." << std::endl;
+      }
+
       return status;
     }
     return -1;

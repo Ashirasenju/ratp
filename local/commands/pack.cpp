@@ -1,3 +1,4 @@
+#include "pack.h"
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -75,6 +76,8 @@ int check_arch(std::string folder) {
     std::cout << "✅.version is correctly positioned and not empty."
               << std::endl;
   }
+  std::cout << "✅The architecture of this RATP package is correct !"
+            << std::endl;
 
   return 0;
 }
