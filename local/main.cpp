@@ -38,6 +38,21 @@ int main(int argc, char *argv[]) {
 
       return status;
     }
+    if (std::strcmp(argv[1], "pack") == 0) {
+      int status = -1;
+      if (argc >= 4) {
+        std::string path = argv[2];
+        std::string package_name = argv[3];
+        int status = pack(package_name,path);
+
+
+      } else {
+        std::cout << "❌Missing a argument." << std::endl;
+      }
+
+      return status;
+    }
+
     return -1;
   }
   return 0;

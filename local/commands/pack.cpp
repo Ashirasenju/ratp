@@ -2,10 +2,9 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include "commons.h"
 // A RATP package should always have the following files : install.sh,
-// uninstall.sh, .version. Those always file must not empty ! It should also
-// have the follwing folder : docs, package, dependencies
-
+// uninstall.sh, .version. Those always file must not empty !
 // Wrapper used to clarify the code
 int path_exists(std::filesystem::path path) {
   return std::filesystem::exists(path);
@@ -21,7 +20,7 @@ int check_arch(std::string folder) {
     std::cout << "The path to access to the folder containing the package "
                  "cannot be found. Please check the spelling and try again."
               << std::endl;
-    return -1;
+    return 0;
 
   } else {
     std::cout << "✅The given path is correct." << std::endl;
@@ -33,13 +32,13 @@ int check_arch(std::string folder) {
       std::cout << "❌install.sh does not exists. Please check if it exists "
                    "and it's position in the file architecture."
                 << std::endl;
-      return -1;
+      return 0;
     }
     if (file_is_empty(installsh_path)) {
       std::cout << "❌install.sh does exists but it's empty. Your RATP package "
                    "will not work if install.sh is empty !"
                 << std::endl;
-      return -1;
+      return 0;
       std::cout << "✅install.sh is correctly positioned and not empty."
                 << std::endl;
     }
@@ -49,13 +48,13 @@ int check_arch(std::string folder) {
       std::cout << "❌uninstall.sh does not exists. Please check if it exists "
                    "and it's position in the file architecture."
                 << std::endl;
-      return -1;
+      return 0;
     }
     if (file_is_empty(uninstallsh_path)) {
       std::cout << "❌uninstall.sh does exists but it's empty. Your RATP "
                    "package will not work if uninstall.sh is empty !"
                 << std::endl;
-      return -1;
+      return 0;
     }
     std::cout << "✅uninstall.sh is correctly positioned and not empty."
               << std::endl;
@@ -65,13 +64,13 @@ int check_arch(std::string folder) {
       std::cout << "❌.version does not exists. Please check if it exists "
                    "and it's position in the file architecture."
                 << std::endl;
-      return -1;
+      return 0;
     }
     if (file_is_empty(dotversion_path)) {
       std::cout << "❌.version does exists but it's empty. Your RATP "
                    "package will not work if uninstall.sh is empty !"
                 << std::endl;
-      return -1;
+      return 0;
     }
     std::cout << "✅.version is correctly positioned and not empty."
               << std::endl;
@@ -79,5 +78,17 @@ int check_arch(std::string folder) {
   std::cout << "✅The architecture of this RATP package is correct !"
             << std::endl;
 
-  return 0;
+  return 1;
 }
+
+int pack(std::string folder,std::string package_name){
+  int arch_check = check_arch(folder);
+  if(arch_check){
+
+    compress(folder,package_name);
+    return 0;
+  } else{
+    return  -1;
+  }
+}
+

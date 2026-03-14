@@ -11,6 +11,39 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
+int compress(std::filesystem::path folder_path, std::string package_name) {
+  pid_t pid = fork();
+  if ((!std::filesystem::exists(
+          folder_path))) // || (filename.ends_with(".tar.gz")
+                         // || filename.ends_with(".tgz")))
+    return -1;
+  if (pid == 0) {
+    std::vector<char *> args;
+    std::string tar_name = package_name + ".tar.gz";
+    std::filesystem::path parent = folder_path.parent_path();
+    std::filesystem::path base = folder_path.filename();
+    std::string parent_str = parent.string();
+    std::string base_str = base.string();
+
+    args.push_back((char *)"tar");
+    args.push_back((char *)"-czvf");
+    args.push_back((char *)tar_name.c_str()); // archive name
+    args.push_back((char *)"-C");
+    args.push_back((char *)parent_str.c_str()); // cd to parent
+    args.push_back((char *)base_str.c_str());   // archive only folder name
+    args.push_back(nullptr);
+    execvp("tar", args.data());
+    perror("execvp failed");
+    _exit(1);
+  } else if (pid > 0) {
+    int status;
+    waitpid(pid, &status, 0);
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
+  } else {
+    perror("fork failed");
+    return false;
+  }
+}
 
 // copy and paste without any shame from an old forum
 int decompress_in_temp(const std::string &filename) {
@@ -245,7 +278,7 @@ int install(std::string package_name, int is_update) {
 
   } else {
     std::string input_file = "registry";
-    std::string output_file = "registry.temp"; 
+    std::string output_file = "registry.temp";
     std::string line;
     std::string prefix = package_name + "|";
     std::ifstream infile(input_file);
