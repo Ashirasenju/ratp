@@ -17,7 +17,7 @@ int file_is_empty(std::filesystem::path path) {
 int check_arch(std::string folder) {
   std::filesystem::path folder_path = folder;
   // Checking if the file exists
-  if (path_exists(folder_path)) {
+  if (!path_exists(folder_path)) {
     std::cout << "The path to access to the folder containing the package "
                  "cannot be found. Please check the spelling and try again."
               << std::endl;
