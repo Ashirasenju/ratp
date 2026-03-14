@@ -223,7 +223,7 @@ int install(std::string package_name, int is_update) {
     std::cout << "❌Something went wrong with the installation of "
               << package_name
               << "please try to contact the editor of the package" << std::endl;
-    return -1;
+    return EXIT_FAILURE;
   }
   std::cout << "✅ " << package_name
             << " installation procedure is successfull." << std::endl;
@@ -241,24 +241,24 @@ int install(std::string package_name, int is_update) {
     std::filesystem::create_directory(temp_dir);
     std::cout << "✅ " << package_name
               << " was successfully installed on your computer." << std::endl;
-    return 0;
+    return EXIT_SUCCESS;
 
   } else {
-    std::string input_file = "registry";       // Fichier à traiter
-    std::string output_file = "registry.temp"; // Fichier temporaire
+    std::string input_file = "registry";
+    std::string output_file = "registry.temp"; 
     std::string line;
     std::string prefix = package_name + "|";
     std::ifstream infile(input_file);
     if (!infile.is_open()) {
       std::cerr << "Impossible d'ouvrir le fichier " << input_file << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
 
     std::ofstream outfile(output_file);
     if (!outfile.is_open()) {
-      std::cerr << "Impossible de créer le fichier " << output_file
+      std::cerr << "Impossible to create a temp file" << output_file
                 << std::endl;
-      return 1;
+      return EXIT_FAILURE;
     }
     while (std::getline(infile, line)) {
       if (line.rfind(prefix, 0) != 0) {
@@ -272,12 +272,12 @@ int install(std::string package_name, int is_update) {
     outfile.close();
     if (std::remove(input_file.c_str()) != 0) {
       std::cerr << "Erreur lors de la suppression du fichier original\n";
-      return 1;
+      return EXIT_FAILURE;
     }
 
     if (std::rename(output_file.c_str(), input_file.c_str()) != 0) {
       std::cerr << "Erreur lors du renommage du fichier filtré\n";
-      return 1;
+      return EXIT_FAILURE;
     }
   }
   std::cout << "✅ " << package_name << " succesfully added to the registry"

@@ -1,5 +1,6 @@
 #include "commands/help.h"
 #include "commands/install.h"
+#include "commands/pack.h"
 #include "commands/purge.h"
 #include "commands/update.h"
 #include <cstring>
@@ -18,11 +19,16 @@ int main(int argc, char *argv[]) {
       return status;
     }
     if (std::strcmp(argv[1], "purge") == 0) {
-      int status = purge(argv,argc);
+      int status = purge(argv, argc);
       return status;
     }
     if (std::strcmp(argv[1], "update") == 0) {
       int status = update();
+      return status;
+    }
+    if (std::strcmp(argv[1], "check_arch") == 0) {
+
+      int status = check_arch();
       return status;
     }
     return -1;
