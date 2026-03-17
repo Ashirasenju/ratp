@@ -25,18 +25,18 @@ int compress(std::filesystem::path folder_path, std::string package_name) {
     std::filesystem::path base = folder_path.filename();
     std::string parent_str = parent.string();
     std::string base_str = base.string();
-     
+
     args.push_back((char *)"tar");
     args.push_back((char *)"-czvf");
     args.push_back((char *)tar_path.c_str()); // archive name
 
     args.push_back((char *)"-C");
     args.push_back((char *)parent_str.c_str()); // cd to parent
-    args.push_back((char *)"--exclude");  
-    args.push_back((char *)tar_name.c_str());   // To avoid that the archive try to compress itself
-    args.push_back((char *)".");   // archive only folder name
-    
-
+    args.push_back((char *)"--exclude");
+    args.push_back(
+        (char *)tar_name
+            .c_str()); // To avoid that the archive try to compress itself
+    args.push_back((char *)"."); // archive only folder name
 
     args.push_back(nullptr);
     execvp("tar", args.data());
@@ -227,28 +227,20 @@ int package_exist(const std::string url) {
 int package_installed(std::string package_name) {
   std::ifstream registry("registry");
   std::string line;
-  while(getline(registry,line)){
-    if(line.find(package_name)){
+  while (getline(registry, line)) {
+    if (line.find(package_name)) {
       return 0;
     }
   }
   registry.close();
   return 1;
-
-
-
-
 }
 
-
-
-
 int install(std::string package_name, int is_update) {
-  if(package_installed(package_name)){
+  if (package_installed(package_name)) {
     std::cout << "❌ Package is already installed !" << std::endl;
     return EXIT_FAILURE;
   }
-
 
   std::filesystem::path cur_dir = std::filesystem::current_path();
 
