@@ -27,6 +27,10 @@ int install(char *argv[], int argc) {
         std::string package_name = local_package_path.filename()
                                        .replace_extension("")
                                        .replace_extension("");
+        if (package_installed(package_name)) {
+          std::cout << "❌ Package is already installed !" << std::endl;
+          return EXIT_FAILURE;
+        }
 
         std::filesystem::path path_to_cache = cur_dir / ".cache" / filename;
 

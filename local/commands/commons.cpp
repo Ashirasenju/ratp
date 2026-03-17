@@ -237,10 +237,6 @@ int package_installed(std::string package_name) {
 }
 
 int install(std::string package_name, int is_update) {
-  if (package_installed(package_name)) {
-    std::cout << "❌ Package is already installed !" << std::endl;
-    return EXIT_FAILURE;
-  }
 
   std::filesystem::path cur_dir = std::filesystem::current_path();
 
