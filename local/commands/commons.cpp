@@ -20,20 +20,27 @@ int compress(std::filesystem::path folder_path, std::string package_name) {
   if (pid == 0) {
     std::vector<char *> args;
     std::string tar_name = package_name + ".tar.gz";
+    std::string tar_path = folder_path / tar_name;
     std::filesystem::path parent = folder_path.parent_path();
     std::filesystem::path base = folder_path.filename();
     std::string parent_str = parent.string();
     std::string base_str = base.string();
-
+     
     args.push_back((char *)"tar");
     args.push_back((char *)"-czvf");
-    args.push_back((char *)tar_name.c_str()); // archive name
+    args.push_back((char *)tar_path.c_str()); // archive name
+
     args.push_back((char *)"-C");
     args.push_back((char *)parent_str.c_str()); // cd to parent
-    args.push_back((char *)base_str.c_str());   // archive only folder name
+    args.push_back((char *)"--exclude");  
+    args.push_back((char *)tar_name.c_str());   // To avoid that the archive try to compress itself
+    args.push_back((char *)".");   // archive only folder name
+    
+
+
     args.push_back(nullptr);
     execvp("tar", args.data());
-    perror("execvp failed");
+
     _exit(1);
   } else if (pid > 0) {
     int status;
