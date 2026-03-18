@@ -228,7 +228,7 @@ int package_installed(std::string package_name) {
   std::ifstream registry("registry");
   std::string line;
   while (getline(registry, line)) {
-    if (line.find(package_name)) {
+    if (line.find(package_name + "|")) {
       return 0;
     }
   }
