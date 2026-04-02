@@ -19,6 +19,7 @@ SRC := $(SRC_DIR)/main.cpp \
        commands/install.cpp \
        commands/purge.cpp \
        commands/pack.cpp \
+			 commands/registry.cpp \
        commands/update.cpp 
 
 # === Fichiers objets ===

@@ -1,5 +1,6 @@
 #include "commons.h"
 #include "curl/curl.h"
+#include "registry.h"
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -224,18 +225,6 @@ int package_exist(const std::string url) {
   return 69;
 }
 
-int package_installed(std::string package_name) {
-  std::ifstream registry("registry");
-  std::string line;
-  while (getline(registry, line)) {
-    if (line.find(package_name + "|")) {
-      return 0;
-    }
-  }
-  registry.close();
-  return 1;
-}
-
 int install(std::string package_name, int is_update) {
 
   std::filesystem::path cur_dir = std::filesystem::current_path();
@@ -283,12 +272,7 @@ int install(std::string package_name, int is_update) {
   std::cout << "Adding " << package_name << " to the registry..." << std::endl;
 
   if (!is_update) {
-    std::ofstream registry("registry");
-    std::string new_package = package_name + "|" + version_str + ";";
-    registry << new_package << "\n";
-    registry.close();
-    std::cout << "✅ " << package_name << " succesfully added to the registry"
-              << std::endl;
+    add_package(package_name, version_str);
     std::cout << "Clearing..." << std::endl;
     std::filesystem::remove_all(temp_dir);
     std::filesystem::create_directory(temp_dir);
@@ -297,41 +281,7 @@ int install(std::string package_name, int is_update) {
     return EXIT_SUCCESS;
 
   } else {
-    std::string input_file = "registry";
-    std::string output_file = "registry.temp";
-    std::string line;
-    std::string prefix = package_name + "|";
-    std::ifstream infile(input_file);
-    if (!infile.is_open()) {
-      std::cerr << "Impossible d'ouvrir le fichier " << input_file << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    std::ofstream outfile(output_file);
-    if (!outfile.is_open()) {
-      std::cerr << "Impossible to create a temp file" << output_file
-                << std::endl;
-      return EXIT_FAILURE;
-    }
-    while (std::getline(infile, line)) {
-      if (line.rfind(prefix, 0) != 0) {
-
-        outfile << line << "\n";
-      } else {
-        outfile << package_name << "|" << version_str << ";" << "\n";
-      }
-    }
-    infile.close();
-    outfile.close();
-    if (std::remove(input_file.c_str()) != 0) {
-      std::cerr << "Erreur lors de la suppression du fichier original\n";
-      return EXIT_FAILURE;
-    }
-
-    if (std::rename(output_file.c_str(), input_file.c_str()) != 0) {
-      std::cerr << "Erreur lors du renommage du fichier filtré\n";
-      return EXIT_FAILURE;
-    }
+    modify_version(package_name, version_str);
   }
   std::cout << "✅ " << package_name << " succesfully added to the registry"
             << std::endl;

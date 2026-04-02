@@ -2,6 +2,7 @@
 #include "commands/install.h"
 #include "commands/pack.h"
 #include "commands/purge.h"
+#include "commands/registry.h"
 #include "commands/update.h"
 #include <cstring>
 #include <iostream>
@@ -22,6 +23,11 @@ int main(int argc, char *argv[]) {
       int status = purge(argv, argc);
       return status;
     }
+    if (std::strcmp(argv[1], "show") == 0) {
+      show_package();
+      return 0;
+    }
+
     if (std::strcmp(argv[1], "update") == 0) {
       int status = update();
       return status;
@@ -43,14 +49,16 @@ int main(int argc, char *argv[]) {
       if (argc >= 4) {
         std::string path = argv[2];
         std::string package_name = argv[3];
-        int status = pack(package_name,path);
-
+        int status = pack(package_name, path);
 
       } else {
         std::cout << "❌Missing a argument." << std::endl;
       }
 
       return status;
+    } else {
+      std::cout << "❌ Command not found" << std::endl;
+      return -1;
     }
 
     return -1;

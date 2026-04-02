@@ -1,5 +1,6 @@
 #include "install.h"
 #include "commons.h"
+#include "registry.h"
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
