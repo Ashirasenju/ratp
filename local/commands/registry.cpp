@@ -85,6 +85,19 @@ std::string get_version(std::string package_name) {
   return "";
 }
 std::vector<std::string> get_versions_by_name(std::string version) {
-  std::vector<std::string> caca = {"proute"};
-  return caca;
+  std::vector<std::string> names = {}; 
+std::ifstream registry("registry");
+  std::string line;
+  std::string to_search = "|v" + version;
+  while (getline(registry, line)) {
+    if (line.find(to_search) != std::string::npos) {
+      int end = line.find("|");
+      std::string name = line.substr(0,end);
+      names.push_back(name);
+      
+    }
+  }
+  registry.close();
+  return names;
+
 }

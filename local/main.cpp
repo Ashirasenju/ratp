@@ -41,6 +41,9 @@ int main(int argc, char *argv[]) {
           } else if (std::strcmp(argv[2], "--version") == 0) {
             std::vector<std::string> package_names =
                 get_versions_by_name(argv[3]);
+            if(package_names.size() == 0){
+              std::cout << "No results." << std::endl;
+            }
             for (auto var : package_names) {
               std::cout << var << std::endl;
             }
