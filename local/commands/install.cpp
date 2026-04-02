@@ -64,8 +64,11 @@ int install(char *argv[], int argc) {
         return 0;
       }
 
-      download(url, package_name);
-      install(package_name, 0);
+      int status_dl = download(url, package_name);
+      if(!status_dl)
+        int status_install = install(package_name, 0);
+      else
+       return status_dl;
       return 0;
     }
   }

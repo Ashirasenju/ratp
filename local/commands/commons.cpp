@@ -160,9 +160,12 @@ int download(const std::string url, std::string package_name) {
   CURLcode res = curl_easy_perform(curl);
   fclose(fp);
 
-  if (res != CURLE_OK)
+  if (res != CURLE_OK){
     std::cerr << "  ❌ Curl Error '" << package_name
               << "': " << curl_easy_strerror(res) << '\n';
+      curl_easy_cleanup(curl);
+    return EXIT_FAILURE;
+  }
   else
     std::cout << "✅ Download finished → " << filename << "\n";
   std::filesystem::path downloaded_content = cur_dir / filename;

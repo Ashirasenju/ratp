@@ -63,12 +63,28 @@ int package_installed(std::string package_name) {
   std::ifstream registry("registry");
   std::string line;
   while (getline(registry, line)) {
-    if (line.find(package_name + "|")) {
-      return 0;
+    if (line.find(package_name + "|") != std::string::npos) {
+      return 1;
     }
   }
   registry.close();
-  return 1;
+  return 0;
 }
-std::string get_version(std::string package_name);
-std::vector<std::string> get_versions_by_name(std::string version);
+std::string get_version(std::string package_name) {
+  std::ifstream registry("registry");
+  std::string line;
+  std::string to_search = package_name + "|";
+  while (getline(registry, line)) {
+    if (line.find(package_name + "|") != std::string::npos) {
+      int start = line.find("|");
+      std::string version = line.substr(start+1, line.size());
+      return version;
+    }
+  }
+  registry.close();
+  return "";
+}
+std::vector<std::string> get_versions_by_name(std::string version) {
+  std::vector<std::string> caca = {"proute"};
+  return caca;
+}

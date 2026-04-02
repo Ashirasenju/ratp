@@ -6,6 +6,8 @@
 #include "commands/update.h"
 #include <cstring>
 #include <iostream>
+#include <string>
+#include <vector>
 int main(int argc, char *argv[]) {
   if (argc == 1) {
     std::cout << "\x1B[31m[Error] No arguments were "
@@ -24,7 +26,29 @@ int main(int argc, char *argv[]) {
       return status;
     }
     if (std::strcmp(argv[1], "show") == 0) {
-      show_package();
+      if (argc == 3) {
+        show_package();
+      } else {
+        if (argc > 3) {
+
+          if (std::strcmp(argv[2], "--package-name") == 0) {
+            std::string version = get_version(argv[3]);
+            if (std::strcmp(version.c_str(), "") == 0) {
+              std::cout << "Package not found." << std::endl;
+            } else {
+              std::cout << version << std::endl;
+            }
+          } else if (std::strcmp(argv[2], "--version") == 0) {
+            std::vector<std::string> package_names =
+                get_versions_by_name(argv[3]);
+            for (auto var : package_names) {
+              std::cout << var << std::endl;
+            }
+          } else {
+            std::cout << "wrong parameter" << std::endl;
+          }
+        }
+      }
       return 0;
     }
 
@@ -32,7 +56,7 @@ int main(int argc, char *argv[]) {
       int status = update();
       return status;
     }
-    if (std::strcmp(argv[1], "check_arch") == 0) {
+    if (std::strcmp(argv[1], "check-arch") == 0) {
       int status = -1;
       if (argc >= 3) {
         std::string path = argv[2];
